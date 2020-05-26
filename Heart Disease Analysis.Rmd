@@ -1,0 +1,835 @@
+---
+title: "Heart Disease Prediction Machine Learning Project"
+author: "Nirmal Sai Swaroop Janapaneedi"
+date: "06/05/2020"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+title: "Heart Disease Prediction Machine Learning Project"
+author: "Alejandro Oscar BOFFA"
+date: "april 15 2020"
+output: 
+  pdf_document: 
+    toc: yes
+    toc_depth: 2
+---
+
+```{r setup, warning = FALSE, include = FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r , message=FALSE, warning=FALSE, echo=FALSE}
+
+if(!require(tidyverse)) install.packages("tidyverse")
+if(!require(kableExtra)) install.packages("kableExtra")
+library(dplyr)
+library(tidyverse)
+library(kableExtra)
+
+```
+## 1. Introduction, overview, executive summary
+
+### 1.1 Introduction
+
+Heart disease describes a range of conditions that affect your heart. Diseases under the heart disease umbrella include blood vessel diseases, such as coronary artery disease; heart rhythm problems (arrhythmias); and heart defects you're born with (congenital heart defects), among others.
+
+The term **"heart disease"** is often used interchangeably with the term "cardiovascular disease." Cardiovascular disease generally refers to conditions that involve narrowed or blocked blood vessels that can lead to a heart attack, chest pain (angina) or stroke. Other heart conditions, such as those that affect your heart's muscle, valves or rhythm, also are considered forms of heart disease.
+Many forms of heart disease can be prevented or treated with healthy lifestyle choices.
+
+Symptoms of heart disease in your blood vessels (atherosclerotic disease):  
+
+    Chest pain, chest tightness, chest pressure and chest discomfort (angina)  
+    Shortness of breath
+    Pain, numbness, weakness or coldness in your legs or arms if the blood vessels are narrowed
+    Pain in the neck, jaw, throat, upper abdomen or back
+
+Heart disease symptoms caused by abnormal heartbeats (heart arrhythmias):  
+
+    Fluttering in your chest
+    Racing heartbeat (tachycardia)
+    Slow heartbeat (bradycardia)
+    Chest pain or discomfort
+    Shortness of breath
+    Lightheadedness
+    Dizziness
+    Fainting (syncope) or near fainting
+
+Heart disease symptoms caused by heart defects:  
+
+    Pale gray or blue skin color (cyanosis)
+    Swelling in the legs, abdomen or areas around the eyes
+    In an infant, shortness of breath during feedings, leading to poor weight gain
+    Easily getting short of breath during exercise or activity
+    Easily tiring during exercise or activity
+    Swelling in the hands, ankles or feet
+
+Heart disease symptoms caused by weak heart muscle (dilated cardiomyopathy):  
+
+    Breathlessness with exertion or at rest
+    Swelling of the legs, ankles and feet
+    Fatigue
+    Irregular heartbeats that feel rapid, pounding or fluttering
+    Dizziness, lightheadedness and fainting
+
+Heart disease symptoms caused by heart infections:  
+
+    Fever
+    Shortness of breath
+    Weakness or fatigue
+    Swelling in your legs or abdomen
+    Changes in your heart rhythm
+    Dry or persistent cough
+    Skin rashes or unusual spots
+
+Heart disease symptoms caused by valvular heart disease:  
+
+    Fatigue
+    Shortness of breath
+    Irregular heartbeat
+    Swollen feet or ankles
+    Chest pain
+    Fainting (syncope)
+
+
+### 1.2 Overview
+
+The purpose for this project is create a Classification Machine Learning System using Heart Disease dataset to predict if a person have a Heart Disease or not.
+
+Scientists have turned towards modern approaches like Data Mining and Machine Learning for predicting the disease. Machine learning proves to be effective in assisting in making decisions and predictions from the large quantity of data produced by the healthcare industry.  
+
+I will be applying Machine Learning models for classifying if a person is suffering a heart disease or not, using one of the most used dataset - Cleveland Heart Disease dataset from the UCI Repository(heart.csv).  
+
+You can found it here: http://archive.ics.uci.edu/ml/datasets/Heart+Disease
+or here https://www.kaggle.com/ronitf/heart-disease-uci/download
+
+This database contains 76 attributes, but all published experiments refer to using a subset of 14 of them. In particular, the Cleveland(USA) database is the only one that has been used by ML researchers to 
+this date. The "target" field refers to the presence of heart disease in the patient.
+There is a package that contains heart_disease dataset: funModeling, but we download our own data from Kaggle.
+
+The content of the dataset (heart.csv) is divided in: age, sex, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal, target. WeÂ´ll explore them later.
+
+The meaning of some of the column headers are not obvious, so, I need to change some column names by others more descriptive for our analisys:
+
+**age**: The person's age in years
+
+**sex**: The person's sex (1 = male, 0 = female)
+
+cp -> **chest_pain_type**: The chest pain experienced (0 = typical angina, 1 = atypical angina, 2 = non-anginal pain, 3 = asymptomatic)
+
+trestbps -> **resting_blood_pressure**: The person's resting blood pressure (mmHg on admission to the hospital)
+
+chol -> **cholesterol**: The person's cholesterol measurement in mg/dl
+
+fbs -> **fasting_blood_sugar**: The person's fasting blood sugar (> 120 mg/dl, 1 = yes; 0 = no)
+
+restecg -> **rest_ecg**: Resting electrocardiographic measurement (0 = normal, 1 = having ST-T wave abnormality, 2 = showing probable or definite left ventricular hypertrophy by Estes' criteria)
+
+thalach -> **max_heart_rate_achieved**: The person's maximum heart rate achieved
+
+exang -> **exercise_induced_angina**: Exercise induced angina (1 = yes; 0 = no)
+
+oldpeak -> **st_depression**: ST depression induced by exercise relative to rest ('ST' relates to positions on the ECG plot)
+
+slope -> **st_slope**: the slope of the peak exercise ST segment (0 = upsloping, 1 = flat, 2 = downsloping)
+
+ca -> **num_major_vessels**: The number of major vessels (0-4)
+
+thal -> **thallium_stress_test**: Cold spots on the scan, where no thallium shows up, indicate areas of the heart that are not getting an adequate supply of blood (0 = non, 1 = normal, 2 = fixed defect, 3 = reversable defect)
+
+target -> **disease**: Heart disease (1 = yes, 0 = no)  
+
+
+Steps to follow.....  
+
+We will download the heart.csv data and run code to generate our datasets, splitting it: **edx**(80% of the data) and **validation**(20% of the data). We choose 80/20 because the number of observations (303 rows) is too little, so we need more validation items.
+
+Next we have to clean and transform our data to permit us a clear and efficient process and apply our machine learning algorithms to obtain the most precise one predicting Heart Disease(highest accuracy).  
+
+The optimal model will be selected based on its accuracy, sensitivity, amongst other factors. This is obtained with confusionMatrix() function.  
+
+A general improvement to using overall accuracy is to study sensitivity and specificity separately. Sensitivity, also known as the true positive rate or recall(TP), is the proportion of actual positive outcomes correctly identified as such. Specificity, also known as the true negative rate(TN), is the proportion of actual negative outcomes that are correctly identified as such.  
+
+A Confusion Matrix tabulates each combination of prediction and actual value. We can create a confusion matrix in R using the table function or the confusionMatrix() function from the caret package.
+
+To provide precise definitions, we name the four entries of the confusion matrix:  
+
+```{r Show Table confMatrix, message=FALSE, warning=FALSE, echo=FALSE}
+
+mat <- matrix(c("True positives (TP)", "False negatives (FN)", 
+                "False positives (FP)", "True negatives (TN)"), 2, 2)
+colnames(mat) <- c("Actually Positive", "Actually Negative")
+rownames(mat) <- c("Predicted positive", "Predicted negative")
+tmp <- as.data.frame(mat)
+
+knitr::kable(tmp, "latex", booktabs = TRUE) %>%
+    kableExtra::kable_styling(font_size = 8)
+
+```
+
+
+The multiple names can be confusing, so here is a table to remember the terms. The table includes a column that shows the definition if we think of the proportions as probabilities.
+
+
+| Measure of | Name 1 | Name 2 | Definition | Probability representation |
+|---------|-----|----------|--------|------------------|
+sensitivity | TPR | Recall | $\frac{\mbox{TP}}{\mbox{TP} + \mbox{FN}}$ | $\mbox{Pr}(\hat{Y}=1 \mid Y=1)$ |
+specificity | TNR | 1-FPR | $\frac{\mbox{TN}}{\mbox{TN}+\mbox{FP}}$ | $\mbox{Pr}(\hat{Y}=0 \mid Y=0)$ |
+specificity |  PPV | Precision | $\frac{\mbox{TP}}{\mbox{TP}+\mbox{FP}}$ | $\mbox{Pr}(Y=1 \mid \hat{Y}=1)$|
+
+
+The **TPR** is True Positive Rate, **FPR** is False Positive Rate, and **PPV** is Positive Predictive Value. The caret function **confusionMatrix()** computes all these metrics for us once we define what category â€œpositiveâ€ is. The function expects factors as input, and the first level is considered the positive outcome or Y = 1.
+
+The general approach to defining â€œbestâ€ in machine learning modeling is to define a **loss function**, the root mean squared error (RMSE), which can be applied to both categorical and continuous data.
+
+If the outcomes are binary(this is the case: heart disease = yes or no), **RMSE is equivalent to one minus accuracy**, since $$(y.hat - y)^2$$ is **0** if the prediction was correct and **1** otherwise. In general, our goal is to **build an algorithm that minimizes the loss** so it is as close **to 0** as possible.
+
+In this report weÂ´ll do data exploration, visualization, pre-processing, evaluate machine learning algorithms and confusionMatrix analysis to create the best predictive model.  
+
+
+### 1.3 Executive Summary
+
+After a initial data cleaning, pre-processing and exploration, **the prediction system builted on the train dataset are evaluated on the test dataset (edx splitted) and the best model is chosen based on the analisys of confusionMatrix values and evaluate using original edx and validation datasets**. This is to avoid overfitting.  
+
+WeÂ´ll use different models, from the simplest possible prediction system to more complex ones.
+
+
+## 2. Methods and Analysis
+
+We install R packages if they donÂ´t exist, download and read "heart.csv" file, process it, .......
+
+```{r Install packages and load libraries, message=FALSE, warning=FALSE, echo=FALSE}
+
+# Install libraries if not exist
+
+if(!require(caret)) install.packages("caret")
+if(!require(data.table)) install.packages("data.table")
+if(!require(tidyr)) install.packages("tidyr")
+if(!require(stringr)) install.packages("stringr")
+if(!require(forcats)) install.packages("forcats")
+if(!require(ggplot2)) install.packages("ggplot2")
+if(!require(funModeling)) install.packages("funModeling")
+
+# Loading all needed libraries
+
+library(dslabs)
+library(caret)
+library(tidyr)
+library(stringr)
+library(forcats)
+library(ggplot2)
+library(gam)
+library(splines)
+library(foreach)
+library(mgcv)
+library(nlme)
+library(data.table)
+library(funModeling)
+```
+
+
+```{r Read heart.csv and Change col names, echo=FALSE, message=FALSE, warning=FALSE}
+
+# Heart Disease Data Set:
+# http://archive.ics.uci.edu/ml/datasets/Heart+Disease
+# https://www.kaggle.com/ronitf/heart-disease-uci/download
+# Relevant Information:
+# This database contains 76 attributes, but all published experiments
+# refer to using a subset of 14 of them. In particular, the Cleveland
+# database is the only one that has been used by ML researchers to 
+# this date. The "goal" field refers to the presence of heart disease
+# in the patient.
+# there is a package that contains heart_desease dataset: funModeling
+# but we load our own data from Kaggle
+
+# automated downloading file "heart.csv" from my github repository
+
+urlfile <-
+  "https://raw.githubusercontent.com/aleboffa/HarvardX-Heart-Disease-Capstone/master/heart.csv"
+
+Hearts <- read.csv(urlfile, header = TRUE) # this is our working dataset
+
+# change for more descriptive column names
+
+names(Hearts) <- c("age", "sex", "chest_pain_type", "resting_blood_pressure",
+                   "cholesterol", "fasting_blood_sugar", "rest_ecg",
+                   "max_heart_rate_achieved", "exercise_induced_angina",
+                   "st_depression", "st_slope", "num_major_vessels",
+                   "thallium_stress_test", "disease")
+
+```
+
+### 2.1 Data exploration and visualization
+
+The **heart dataset** is a data table made of 14 variables (columns) and a total of 303 observations (rows).  
+
+How are the first rows of Hearts dataset? Each row represents a person with heart disease or not...
+
+```{r Show head of Hearts data, message=FALSE, warning=FALSE, echo=FALSE}
+
+Hearts %>% as_tibble()
+
+```
+
+We can see the number of NA into the dataset:
+
+```{r Show NA, message=FALSE, warning=FALSE, echo=FALSE}
+
+map_int(Hearts, function(.x) sum(is.na(.x)))
+
+```
+
+There are no missing values (NA).  
+
+Now, letÂ´s see a brief summary and plot distribution for each variable:
+
+```{r Summary and plot distrib Hearts, message=FALSE, warning=FALSE, echo=FALSE}
+
+summary(Hearts)
+
+plot_num(Hearts)
+
+```
+
+Above, we can see several variables with normal distribution, others are binary categorical (0, 1), and the rest with several categorical levels.  
+
+LetÂ´s see the proportion and distribution of "disease"(heart disease) variable:
+
+Note: "0" = No disease ,  "1" = Have disease  
+      
+```{r Show propor and distrib disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+round(prop.table(table(Hearts$disease)), digits = 2) # show proportion
+
+ggplot(Hearts, aes(x=disease)) + 
+  geom_bar(fill="gray",alpha=0.5)+theme_bw() + 
+  labs(title="Distribution of Heart Disease")
+
+```
+
+This means that there is NO heart disease present in 46% of patients and the remaining 54% HAVE heart disease.
+
+Next, we see the distribution of Heart Disease per Age(quantity):
+
+```{r Plot rating frecuency, message=FALSE, warning=FALSE, echo=FALSE}
+
+    Hearts %>% filter(disease == 1) %>% ggplot(aes(age)) +
+      theme_classic()  +
+      geom_histogram(bins=200) +
+      labs(title = "Heart Disease Distribution Per Age",
+        x = "Age",
+        y = "Frequency")
+
+```
+
+Above, we see that people with 54 years old have more heart disease, and one step lower with 41 year old.
+
+
+```{r plot distrib age/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+temp_dataset <- Hearts
+
+levels(temp_dataset$disease) <- c("No Heart Disease", "Have Heart Disease")
+
+# cross_plot() function from "funmodeling" package
+
+cross_plot(temp_dataset, input="age",
+           target="disease", plot_type = "percentual")
+
+```
+
+Above, we can see another type of distribution on this dataset of Heart Disease per Age(percentual,  cyan = heart disease, red = no heart disease).
+
+
+```{r plot distrib sex/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="sex", target="disease")
+
+```
+
+
+Above, we can see another type of distribution on this dataset of Heart Disease per Sex/Disease: cyan = heart disease, red = no heart disease; sex: 0 = Female, 1 = Male).  
+
+Note that total Female are 96 and total Male are 207, this is not balanced.
+
+```{r plot distrib cholesterol/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="cholesterol",
+           target="disease", plot_type = "quantity")
+
+```
+
+
+Above, we can see distribution Cholesterol vs Disease: cyan = heart disease, red = no heart disease).  
+
+
+```{r plot distrib pain/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="chest_pain_type",
+           target="disease", plot_type = "quantity")
+
+```
+
+
+Above, we can see distribution chest_pain_type vs Disease: cyan = heart disease, red = no heart disease; chest_pain_type : 0 = typical angina, 1 = atypical angina, 2 = non-anginal pain, 3 = asymptomatic.  
+
+```{r plot distrib max_heart_rate_achieved/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="max_heart_rate_achieved",
+           target="disease", plot_type = "quantity")
+
+```
+
+
+Above, we can see distribution cmax_heart_rate_achieved vs Disease: cyan = heart disease, red = no heart disease. We detect that to higher heart rate, more cases of heart disease.
+
+```{r plot distrib num_major_vessels/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="num_major_vessels",
+           target="disease", plot_type = "quantity")
+
+```
+
+
+Above, we can see distribution num_major_vessels vs Disease: cyan = heart disease, red = no heart disease; num_major_vessels = 0 to 4. We can see that as the number of major blood vessels increases, the probability of heart disease decreases. That have sense, as it means more blood can get to the heart.  
+
+```{r plot distrib thallium_stress_test/disease, message=FALSE, warning=FALSE, echo=FALSE}
+
+cross_plot(temp_dataset, input="thallium_stress_test",
+           target="disease", plot_type = "quantity")
+
+```
+
+
+Above, we can see distribution thallium_stress_test vs Disease: cyan = heart disease, red = no heart disease; thallium_stress_test : 0 = non, 1 = normal, 2 = fixed defect, 3 = reversable defect. We can see that with a thallium_stress_test = 2 = fixed defect, a heart disease have a explosion. Cold spots on the scan, where no thallium shows up, indicate areas of the heart that are not getting an adequate supply of blood. This is the most important variable of our dataset "heart.csv".  
+
+
+Let's keep going....  
+
+Most machine learning  algorithms assume that the predictor variables are independent from each others.  
+LetÂ´s see correlations between predictors, if we have values near to 1, we have to discard that variable:
+
+```{r Show and plot correlat, message=FALSE, warning=FALSE, echo=FALSE}
+
+correlation_table(Hearts, "disease")
+
+Hearts_corr <- cor(Hearts %>% select(-disease))
+
+corrplot::corrplot(Hearts_corr, order = "hclust", tl.cex = 0.8, addrect = 8)
+
+```
+
+
+As we see, there are NO correlations between variables(predictors). Always < 0.43, so we are ok to procces and modeling our data. Just we have to separate "disease" variable(the outcome).
+
+
+### 2.2 Data pre-processing  
+
+Now weÂ´ll continue with data pre-processing....From here, we will show the code for better understanding. 
+
+**Principal Component Analysis(PCA)**
+
+We can get variable importance without using a predictive model using information theory, ordered from highest to lowest:  
+
+Note:  
+
+    **en**: entropy measured in bits  
+    
+    **mi**: mutual information  
+    
+    **ig**: information gain  
+    
+    **gr**: gain ratio (is the most important metric here, ranged from 0 to 1,
+            with higher being better)   
+
+```{r Show and plot var importance, message=FALSE, warning=FALSE, echo=FALSE}
+
+# var_rank_info() function from "funmodeling" package
+
+variable_importance = var_rank_info(Hearts, "disease") 
+
+# show result
+
+variable_importance
+
+# Plotting 
+
+ggplot(variable_importance, aes(x = reorder(var, gr), y = gr, fill = var)) + 
+  geom_bar(stat = "identity") + 
+  coord_flip() + 
+  theme_bw() + 
+  xlab("") + 
+  ylab("Variable Importance (based on Information Gain)") + 
+  guides(fill = FALSE)
+
+```
+
+According to the plot, "thallium_stress_test" is the most important variable in this dataset.  
+
+
+Now, we transform numeric "disease" variable as a factor, because confusionMatrix() function needs work with factors of the same length, 
+
+```{r convert disease to factor, message=FALSE, warning=FALSE, echo=TRUE}
+
+# converts disease as factor "0" or "1" to use with confusionMatrix()
+
+Hearts <- mutate_at(Hearts, vars(disease), as.factor) 
+
+str(Hearts$disease)
+
+```
+
+Then, "disease" column is removed, then we scale and center the data. Compute PCA,
+
+```{r PCA analisys, message=FALSE, warning=FALSE, echo=TRUE}
+
+# now calculate PCA removing "disease" with correlation "1"
+
+set.seed(1)
+pca <- prcomp(Hearts %>% select(-disease), scale = TRUE, center = TRUE)
+
+str(pca)
+
+summary(pca)
+
+```
+
+As we see, standard deviation(sdev) of each column is stored in pca$sdev, so the total variability in our data can be defined as the sum of the sum of squares of the columns. We assume the columns are centered, so this sum is equivalent to the sum of the variances of each column:
+
+```{r PCA analisys 2, message=FALSE, warning=FALSE, echo=TRUE}
+
+# Compute the proportion of variance explained(PVE)
+
+pve_Hearts <- pca$sdev^2 / sum(pca$sdev^2)
+cum_pve <- cumsum(pve_Hearts)     # Cummulative percent explained
+pve_table <- tibble(comp = seq(1:ncol(Hearts %>% select(-disease))),
+                    pve_Hearts, cum_pve)
+
+# plot components vs PVE to see if there are correlations
+# to reduce variable numbers. All have to be independent variables
+
+ggplot(pve_table, aes(x = comp, y = cum_pve)) + 
+  geom_point() + 
+  geom_abline(intercept = 0.95, color = "red",
+              slope = 0)   # line at 95% of cum_pve
+
+```
+
+As we see, the above plot shows that 95% of the variance is explained with almost all principal components(11 PCs), so we decide to work with the originals 13 variables dataset.
+
+And now, we create edx and validation datasets:
+
+```{r Create edx and validation sets, echo=TRUE, message=FALSE, warning=FALSE}
+
+########################################################
+#  Spliting Hearts dataset in edx and validation sets
+#  We will use it in the final algorithm
+########################################################
+
+set.seed(1) # if you are using R 3.5 or Microsoft R Open 3.5.3
+# set.seed(1, sample.kind="Rounding") if using R 3.5.3 or later
+
+# Validation set will be 20% of Hearts data because it is a little dataset
+
+test_index <- createDataPartition(y = Hearts$disease,
+                                  times = 1, p = 0.2, list = FALSE) 
+edx <- Hearts[-test_index,]
+validation <- Hearts[test_index,] # we will use it only to do final test
+
+```
+
+
+We will split edx data into train_set and test_set. Validation data will be used only to test the final value of the best model, this is to avoid overfitting (too optimistic result):
+
+```{r split edx for train and test, message=FALSE, warning=FALSE, echo=TRUE}
+
+########################################################
+#  Spliting edx dataset in train_set and test_set
+#  We will use it to train ours models
+########################################################
+
+set.seed(1) # if you are using R 3.5 or Microsoft R open 3.5.3
+# set.seed(1, sample.kind="Rounding") # if using R 3.5.3 or later
+
+test_index <- createDataPartition(y = edx$disease,
+                                  times = 1, p = 0.2, 
+                                  list = FALSE)  # test_set 20%
+train_set <- edx[-test_index,]
+test_set <- edx[test_index,]
+
+```
+
+
+### 2.3 Model building approach
+
+As we see before, weÂ´ll use a heart.csv dataset preprocessed, with 303 observations and 13 variables to construct and test our prediction of heart disease models. 
+
+First, weÂ´ll construct a function to apply several models, with train and test sets. Next weÂ´ll do it with edx and validation datasets. With this, we can compute accuracy average of each model and choose the one with the smallest difference between its values with differents datasets, reducing the variation of prediction. So, in theory, if we get a larger dataset of heart disease, there will be a little difference in the prediction result, within 95% of the confidence interval.
+
+To start, we choose these models of Classification:
+(you can see a list of models here: https://topepo.github.io/caret/available-models.html)
+
+**glm:** Generalized Linear Model  
+
+**lda:** Linear Discriminant Analysis  
+
+**naive_bayes:** Naive Bayes  
+
+**svmLinear:** Support Vector Machines with Linear Kernel  
+
+**gamLoess:** Generalized Additive Model using LOESS  
+
+**qda:** Quadratic Discriminant Analysis  
+
+**knn:** k-Nearest Neighbors  
+
+**kknn:** Other k-Nearest Neighbors  
+
+**gam:** Generalized Additive Model using Splines  
+
+**rf:** Random Forest  
+
+**ranger:** Other Random Forest  
+
+**wsrf:** Weighted Subspace Random Forest  
+
+**mlp:** Multi-Layer Perceptron Neural Network    
+
+
+```{r models and trainControl, message=FALSE, warning=FALSE, echo=TRUE}
+
+# model list, it can be any model you want to test,
+# just be sure to load the library that contains it
+
+models <- c("glm", "lda", "naive_bayes", "svmLinear",
+            "gamLoess", "qda", "knn", "kknn",
+            "gam", "rf", "ranger", "wsrf", "mlp")
+
+# trainControl function for control tuning parameters models
+
+control <- trainControl(method = "cv",   # cross validation
+                        number = 10,     # 10 k-folds or number 
+                                  # of resampling iterations
+                        repeats = 5)
+
+```
+
+Here are the results of differents models on 2 differents datasets: first train/test_set, and edx/validation later:
+
+```{r models with final edx an validation set, message=FALSE, warning=FALSE, echo=TRUE}
+
+# initializing variables
+
+data_train <- train_set       # first value for data parameter
+data_test <-  test_set        # first weÂ´ll use train and test dataset 
+true_value <- test_set$disease # true outcome from test_set 
+
+# loop to use train and test set first and edx and validation later
+
+for(i in 1:2) {       
+  fits <- lapply(models, function(model){ 
+#    print(model)  # itÂ´s used to debug code
+    set.seed(1)
+    train(disease ~ .,
+          method = model,
+          preProcess=c("center", "scale"),   # to normalize the data
+          data = data_train,
+          trControl = control)
+  })
+
+  names(fits) <- models
+
+  # to be sure that the actual value of the output
+  # has not influence on the prediction
+
+  vali2 <- data_test %>% select(-disease) 
+
+  pred <- sapply(fits, function(object) # predicting outcome
+      predict(object, newdata = vali2))
+
+  # avg predicted values if equals to true values
+  
+  if (i == 1) acc <- colMeans(pred == true_value)
+  
+  data_train <- edx               # last value for data parameter
+  data_test <-  validation        # last weÂ´ll use edx and validation
+  true_value <- validation$disease  # true outcome from validation set
+
+}
+
+acc    # all accuracy values with first dataset. Train and Test set
+
+acc2 <- colMeans(pred == true_value) # avg predicted values
+
+acc2   # all accuracy values with last dataset. Edx and Validation set
+
+```
+
+Then we make the difference between the most and the least optimistic models. Here we choose the model with the smallest value(variation between datasets). ItÂ´s **Ranger Model**, other Random Forest model:
+
+```{r results , message=FALSE, warning=FALSE, echo=TRUE}
+
+results <- acc2 - acc # accuracy diff by model
+
+# show results of difference on the same model for different dataset 
+
+results
+
+```
+
+We compute balanced accuracy, sensitivity, specificity, prevalence with help of confusionMatrix() function:  
+
+Here with edx/validation datasets,
+
+```{r models results, message=FALSE, warning=FALSE, echo=TRUE}
+
+# Compute balance accuracy, sensitivity, specificity,
+# prevalence with confusionMatrix
+
+cm_validation_hearts<- confusionMatrix(as.factor(pred[,11]),
+                                       validation$disease, positive = "1")
+cm_validation_hearts
+
+```
+
+Here we see that **Prevalence = 0.54** (is the proportion of individuals with disease) is a good value (balanced). According to the American Heart Association's Heart and Stroke Statistics, 2019 Update, nearly half (48 percent, 121.5 million in 2016) of all adults in the United States have some type of cardiovascular disease(https://www.sciencedaily.com/releases/2019/01/190131084238.htm).
+
+**Sensitivity = 0.81** (also known as the true positive rate or recall, is the proportion of actual positive outcomes correctly identified as such),
+
+**Specificity = 0.89** (also known as the true negative rate, is the proportion of actual negative outcomes that are correctly identified as such), **Detection Rate = 0.44** and 
+**Balanced Accuracy = 0.85** is very good.   
+
+
+#### 2.3.1 Inside Ranger Method: a Random Forest Model  
+
+Ranger method is a fast implementation of Random Forests. Ensembles of classification, regression, survival and probability prediction trees are supported. Data from genome-wide association studies can be analyzed efficiently. In spite of particularly suited for high dimensional data (ours is tiny now, huge in near future), weÂ´ll use it changing several default parameters.
+
+```{r ranger_model only, message=FALSE, warning=FALSE, echo=TRUE}
+
+# Final Ranger model algorithm computed with principal
+# edx and validation dataset
+
+# to avoid error in confusionMatrix, we convert num 0,1 to No,Yes
+
+levels(edx$disease) <- c("No", "Yes")        
+levels(validation$disease) <- c("No", "Yes")
+
+# to be sure that the actual value of the output
+# has not influence on the prediction
+
+vali2 <- validation %>% select(-disease)
+
+# trainControl function for control iteration model
+# we test differents parameters and choose that ones that improve accuracy
+
+control <- trainControl(method = "cv",   # cross validation
+                        number = 30)   # optimum k-folds or number 30
+                                       # of resampling iterations
+
+# training Ranger Model
+
+set.seed(1)
+ranger_model <- train(disease ~., data = edx,
+                     method = "ranger",  # ranger model
+                     preProcess=c("center", "scale"),   # to normalize the data
+                     trControl = control)
+
+# predicting outcome
+
+prediction_ranger <- predict(ranger_model, newdata = vali2)
+
+# Check results with confusionMatrix() function and validation set
+
+cm_ranger_model <- confusionMatrix(prediction_ranger,
+                                   validation$disease, positive = "Yes")
+cm_ranger_model
+
+```
+
+Now we have a **better Balanced Accuracy = 0.90 , better Detection Rate = 0.49 and better Sensitivity = 0.90 (best to improve patient health)**, and the same Specificity = 0.85 (true negative rate, not harmful to people's health).
+
+
+## 3. Results
+
+These are the results that we were able to achieve with our models, trained with ***edx*** and tested with **validation** datasets:
+
+
+```{r Show All Models results, message=FALSE, warning=FALSE, echo=FALSE}
+
+# results from several models computed with edx and validation datasets
+
+acc2 %>% knitr::kable(col.names = c("Model    Accuracy")) 
+
+```
+  
+Here is the table of differences in the results of the same models tested with 2 different datasets: 
+
+```{r, message=FALSE, warning=FALSE, echo=FALSE}
+
+results <- (acc2 - acc) * 100 # accuracy difference by model in %
+
+# show results of difference on the same model for different dataset 
+
+results %>% knitr::kable(col.names = c("Accuracy difference by model in %"))
+
+# barchart with difference between 2 datasets on the same model,
+# smaller is better
+
+results <- sort(results)
+barchart(results)
+
+```
+
+In the barchart above, difference between 2 datasets on the same model, smaller is better. This means that has a better precision outcome stability when there are differents dataset as input. 
+
+And here is the Accuracy result from our **FINAL Ranger Model**:
+
+
+```{r Show FINAL accuracy results, message=FALSE, warning=FALSE, echo=FALSE}
+
+############
+# accuracy result from our best Final Model computed with
+# original edx and validation datasets
+
+# compute final accuracy and convert proportion to percentage
+
+acc3 <- (mean(prediction_ranger == validation$disease)) * 100
+
+# show final accuracy
+
+paste0("Ranger Model Accuracy: ", round(acc3, digits=2)," %")
+
+```
+
+
+## 4. Conclusion
+
+As we see, studying one of the most used dataset â€” Cleveland Heart Disease dataset from the UCI Repository(heart.csv), **with our Classification Machine Learning Algorithm ("ranger" random forest model), we reach accuracy and sensitivity of 90%, that is very important because with these parameters as high as possible, more people weÂ´ll be predicted with Heart Disease and they will be treated to improve their quality of life**. Other models like "kknn" or "gamLoess" go up to 0.93 in accuracy, better than "ranger"= 0.90, but they have a greater variation in results when computing with 2 different datasets. So, I prefer to choose the minimum variation between different datasets, the most stable model.
+
+In a next job, we need to go down the predicted error and we could also consider more advanced Machine Learning algorithms (specific classification models) that surely will improve the results with more tuning parametrs to fit with our dataset and also we could try others bigger datasets. 
+
+My next step in artificial intelligence will be the study of digitized images of magnetic resonance, tomography, radiography and other types of imaging studies to build an algorithm capable of diagnosing, without human intervention, the existence of a disease in the patient, with precision. equal to or greater than what the medical specialist can discover.
+
+It would also be interesting to try other machine learning systems such as Keras, Tensor Flow, neural networks, etc.  
+
+
+## *References*
+
+https://rafalab.github.io/dsbook/
+
+https://www.mayoclinic.org/diseases-conditions/heart-disease/symptoms-causes/syc-20353118
+
+https://en.wikipedia.org/wiki/Cardiovascular_disease
+
+https://www.sciencedaily.com/releases/2019/01/190131084238.htm
+
+https://livebook.datascienceheroes.com
+
+https://topepo.github.io/caret/index.html
+
+https://cran.r-project.org/web/packages/ranger/ranger.pdf
